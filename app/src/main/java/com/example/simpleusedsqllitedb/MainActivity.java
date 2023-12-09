@@ -82,14 +82,15 @@ public class MainActivity extends AppCompatActivity {
         final EditText newContactEditText = view.findViewById(R.id.name);
         final EditText contactEmailEditText = view.findViewById(R.id.email);
 
-        newContactEditText.setText(contact.getName()); // Заполнение поля имени текущим значением контакта
-        contactEmailEditText.setText(contact.getEmail()); // Заполнение поля email текущим значением контакта
+        newContactEditText.setText(contact.getName());
+        contactEmailEditText.setText(contact.getEmail());
 
         alertDialogBuilder.setTitle("Edit Contact")
                 .setPositiveButton("Update", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        UpdateContact(newContactEditText.getText().toString(), contactEmailEditText.getText().toString(), position);
+                        UpdateContact(newContactEditText.getText().toString(),
+                                contactEmailEditText.getText().toString(), position);
                     }
                 })
                 .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
@@ -115,8 +116,8 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Создание нового контакта
-                        CreateContact(newContact.getText().toString(), contactEmail.getText().toString());
+                        CreateContact(newContact.getText().toString(),
+                                contactEmail.getText().toString());
                     }
                 });
 

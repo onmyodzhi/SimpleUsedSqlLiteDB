@@ -106,7 +106,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(Contact.COLUMN_EMAIL, contact.getEmail());
 
         return db.update(Contact.TABLE_NAME, values,
-                Contact.COLUMN_ID + " = ?",
+                Contact.COLUMN_ID + " =?",
                 new String[]{String.valueOf(contact.getId())});
     }
 
