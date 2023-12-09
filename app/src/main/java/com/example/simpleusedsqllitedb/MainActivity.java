@@ -10,22 +10,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.simpleusedsqllitedb.adapter.ContactAdapter;
 import com.example.simpleusedsqllitedb.database.DatabaseHelper;
 import com.example.simpleusedsqllitedb.database.entity.Contact;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import org.w3c.dom.Text;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("My favorite contacts");
 
@@ -60,78 +55,79 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(contactAdapter);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener(){
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addAndEditContacts(false, null, -1);
             }
         });
-
-
     }
 
     public void addAndEditContacts(final boolean isUpdated, final Contact contact, final int position) {
+        if (isUpdated) {
+            editContact(contact, position);
+        } else {
+            addContact();
+        }
+    }
+
+    private void editContact(final Contact contact, final int position) {
         LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
         View view = layoutInflater.inflate(R.layout.layout_add_contact, null);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder.setView(view);
 
-        TextView contactTitle = view.findViewById(R.id.new_contact_title);
-        final EditText newContact = view.findViewById(R.id.name);
-        final EditText contactEmail = view.findViewById(R.id.email);
+        final EditText newContactEditText = view.findViewById(R.id.name);
+        final EditText contactEmailEditText = view.findViewById(R.id.email);
 
-        contactTitle.setText(!isUpdated ? "Add new contact" : "Edit Contact");
+        newContactEditText.setText(contact.getName()); // Заполнение поля имени текущим значением контакта
+        contactEmailEditText.setText(contact.getEmail()); // Заполнение поля email текущим значением контакта
 
-        if (isUpdated && contact != null) {
-            newContact.setText(contact.getName());
-            contactEmail.setText(contact.getEmail()); // Fix: Use contactEmail instead of newContact
-        }
-
-        alertDialogBuilder.setTitle(!isUpdated ? "Add new contact" : "Edit Contact")
-                .setPositiveButton(isUpdated ? "Update" : "Save", new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setTitle("Edit Contact")
+                .setPositiveButton("Update", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+                        UpdateContact(newContactEditText.getText().toString(), contactEmailEditText.getText().toString(), position);
                     }
                 })
                 .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
-                        if (isUpdated) {
-                            DeleteContact(contact, position);
-                        } else {
-                            dialogInterface.cancel();
-                        }
+                        DeleteContact(contact, position);
                     }
                 });
 
-        final AlertDialog alertDialog = alertDialogBuilder.create(); // Fix: Create the AlertDialog using alertDialogBuilder
+        AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+    private void addContact() {
+        LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
+        View view = layoutInflater.inflate(R.layout.layout_add_contact, null);
 
-        alertDialog.getButton(alertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (TextUtils.isEmpty(newContact.getText().toString())) {
-                    Toast.makeText(MainActivity.this, "Please enter a name", Toast.LENGTH_SHORT).show();
-                    return;
-                } else {
-                    alertDialog.dismiss();
-                }
-                if (isUpdated && contact != null) { // Fix: Check if contact is not null
-                    UpdateContact(newContact.getText().toString(), contactEmail.getText().toString(), position);
-                } else {
-                    CreateContact(newContact.getText().toString(), contactEmail.getText().toString());
-                }
-            }
-        });
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        alertDialogBuilder.setView(view);
+
+        final EditText newContact = view.findViewById(R.id.name);
+        final EditText contactEmail = view.findViewById(R.id.email);
+        alertDialogBuilder.setTitle("Add new contact")
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Создание нового контакта
+                        CreateContact(newContact.getText().toString(), contactEmail.getText().toString());
+                    }
+                });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     private void CreateContact(String name, String email) {
-        long id = db.insertContact(name,email);
+        long id = db.insertContact(name, email);
         Contact contact = db.getContact(id);
-        if (contact != null){
+        if (contact != null) {
             contactArrayList.add(0, contact);
             contactAdapter.notifyDataSetChanged();
         }
@@ -163,9 +159,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id  = item.getItemId();
+        int id = item.getItemId();
 
-        if (id == R.id.actionAndSettings){
+        if (id == R.id.actionAndSettings) {
             return true;
         }
         return super.onOptionsItemSelected(item);

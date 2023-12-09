@@ -1,4 +1,4 @@
-package com.example.simpleusedsqllitedb;
+package com.example.simpleusedsqllitedb.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,9 +9,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.simpleusedsqllitedb.MainActivity;
+import com.example.simpleusedsqllitedb.R;
 import com.example.simpleusedsqllitedb.database.entity.Contact;
 
-import java.security.PublicKey;
 import java.util.ArrayList;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.MyViewHolder> {
